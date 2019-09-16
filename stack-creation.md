@@ -183,7 +183,7 @@ We'll come back and update additional environment variables later in this tutori
 
 So now that we have the environment variables set, we need to ensure that the flask module is installed, along with any dependencies. We will use `pipenv` to help us build a list of dependencies, and then use pip to install those dependencies into the dependency directory (which is already defined in the sample stack in the line `ENV APPSODY_DEPS=/project/deps`). We then set the python path to pick up these dependencies. Don't worry if you are not that familiar with dependencies in python - the key take away here is that we need to provide some code in the Docker file that will install whatever technology components we need, plus their dependencies.
 
-Finally, we tell flask the entry point (which is server code we will write in the next step). To do all the above, we add the following to `Dockerfile-stack`, typically towards the end of the file after the `WORKDIR` is set.
+Finally, we tell flask the entry point (which is server code we will write in the next step). To do all the above, we add the following to `Dockerfile-stack`, typically towards the end of the file after the `WORKDIR` is set:
 
 ```bash
 RUN pip install pipenv
@@ -210,7 +210,7 @@ from userapp import *
 EOF
 ```
 
-The above will start a flask application (`app`) and the import and python files the user writes into it so that they are part of the server. That's all we need to do for the server side!
+The above will start a flask application (`app`) and then import any python files the user writes, so that they are part of the server. That's all we need to do for the server side!
 
 ### Write our sample Hello World application in the template directory
 
@@ -275,14 +275,14 @@ Running docker command: docker[run --rm -p 8080:8080 --name test22-dev -v /Users
 [Container]  * Running on http://0.0.0.0:8080/ (Press CTRL+C to quit)
 ```
 
-Note that now flask is the running application - and if we where to hit our published endpoint, we should get a response:
+Note that now flask is the running application - and if go and hit our published endpoint, we should get a response:
 
 ```bash
 $ curl http://0.0.0.0:8080/hello
 Hello from Appsody!
 ```
 
-We can also check that appsody will restart the server if we make a change to our hello world application. For instance, if we edit `__init__.py` in the templates/simple directly to change the message response for the /hello url to, say, "Hello again from Appsody!" and save the file, you should see the flask server automatically restart, and then if you again hit the end point you should see the updated message:
+We can also check that appsody will restart the server if we make a change to our hello world application. For instance, if we edit `__init__.py` in the `templates/simple` directly to change the message response for the /hello url to, say, "Hello again from Appsody!" and save the file, you should see the flask server automatically restart, and then if you again hit the endpoint again you should see the updated message:
 
 ```bash
 $ curl http://0.0.0.0:8080/hello
