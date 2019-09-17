@@ -159,9 +159,17 @@ The first is to select a base image. For us, a good base image to use is the sta
 FROM python:3.7
 ```
 
-The next step is modify the appropriate appsody environment variables. There are quite a number of these (as already shown in the sample stack), but to be able to just run our new stack with an application, there are only 3 we need to change to get us started:
+The next step is modify the appropriate appsody environment variables. There are quite a number of these (as already shown in the sample stack), but to be able to just run our new stack with an application, there are only 4 we need to change to get us started:
 
-First we need to update the `APPSODY_RUN` environment variable, since this is what appsody will pass control to when you issue the 'appsody run' command, when operating in Rapid Local Development Mode. This is typically whatever command you would use to execute your main technology service if you were running it manually - for flask it is as follows:
+There are a set of three variable that control how `appsody run` operates. Since the sample stack is un-opinionated on technology, the example used for an application is just a shell script. So these variables in the sample stack will looking something like:
+
+```bash
+ENV APPSODY_RUN="/bin/bash /project/userapp/hello.sh"
+ENV APPSODY_RUN_ON_CHANGE="/bin/bash /project/userapp/hello.sh"
+ENV APPSODY_RUN_KILL=false
+```
+
+So let's update these for our stack. First we need to update the `APPSODY_RUN` environment variable, since this is what appsody will pass control to when you issue the 'appsody run' command, when operating in Rapid Local Development Mode. This is typically whatever command you would use to execute your main technology service if you were running it manually - for flask it is as follows:
 
 ```bash
 ENV APPSODY_RUN="python -m flask run --host=0.0.0.0 --port=8080"
@@ -171,6 +179,20 @@ In Rapid Local Development Mode your application can be restarted on detection o
 
 ```bash
 ENV APPSODY_RUN_ON_CHANGE="python -m flask run --host=0.0.0.0 --port=8080"
+```
+
+In terms of `APPSODY_RUN_KILL`, this is used tto determine whether appsody needs to forcibly terminate the current running process. Since the sample stack actually just runs a one-shot shell script, it is set to `false`. For our stack, however, we would need appsody to kill the existing flask process, so we will set this to `true`.
+
+```bash
+ENV APPSODY_RUN_KILL=true
+```
+
+So our `appsody run` environment variable should now look like:
+
+```bash
+ENV APPSODY_RUN="python -m flask run --host=0.0.0.0 --port=8080"
+ENV APPSODY_RUN_ON_CHANGE="python -m flask run --host=0.0.0.0 --port=8080"
+ENV APPSODY_RUN_KILL=true
 ```
 
 Finally, we should tell appsody which files to watch that will be considered a relevant change and our application will be re-run. This is specified using the `APPSODY_WATCH_REGEX` variable. For a python stack, we might set this to any file ending in `.py`.
